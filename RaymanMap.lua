@@ -227,6 +227,7 @@ local verboseBox=forms.checkbox(form, "Verbose", 15, 30);
 local rayBox=forms.checkbox(form, "Rayman hitbox", 5, 60);
 local eventBox=forms.checkbox(form, "Draw events", 5, 90);
 local aniBox=forms.checkbox(form, "Animated hitbox", 15, 120);
+local infoBox=forms.checkbox(form, "Show event info", 15, 150);
 
 memory.usememorydomain("MainRAM");
 
@@ -303,6 +304,17 @@ while true do
 					then
 						gui.drawRectangle(h.x, h.y, h.width, h.height, "red");
 					end
+				end
+				
+				if forms.ischecked(infoBox)
+				then
+					eventX = pos.x
+					eventY = pos.y
+					eventXs = memory.read_s16_le(current+0x2c)
+					eventYs = memory.read_s16_le(current+0x2e)
+					
+					gui.text(screenPos.x, screenPos.y + 15, "(" .. eventX .. "," .. eventY .. ")")
+					gui.text(screenPos.x, screenPos.y + 30, "(" .. eventXs .. "," .. eventYs .. ")")
 				end
 			end
 			gui.text(0, 0, acString, null, "green"); --draw acString, since it can't be done during the loop

@@ -4,7 +4,7 @@
 --allow form to choose between static/animated hitbox
 --interpolation not only for camera but for event as well???
 
-local getBlockName = function(hex)
+local getBlockName = function(hex)	
 	if hex==0x04 then
 		return "reactionary"
 	elseif hex>=0x08 and hex<0x0c then
@@ -56,9 +56,9 @@ end
 
 --calculates screen position (as table) from the game position it is given
 local gameToScreen = function(x, y)
-	x=(x-camPos.x)*2+borderWidth.left;--+camI.x;
-	y=(y-camPos.y)*2;--+camI.y;
-	return {x=x, y=y};
+	x = (x - camPos.x) * 2 + borderWidth.left;
+	y = (y - camPos.y) * 2;
+	return {x = x, y = y};
 end
 
 --draws block types by going through the list of blocks, converting them to screen coordinates and checking their type
@@ -178,19 +178,19 @@ local getAnimatedHitbox=function(current, pos, active, aniCounter, ani2base)
 end
 
 --draws the index of the current event. green if it's active, red otherwise
-local drawIndex=function(index, screenPos, active, acString)	
-	if screenPos.x>=0 and screenPos.y>=0 and screenPos.x<client.screenwidth() and screenPos.y<client.screenheight() --on screen?
+local drawIndex = function(index, pos, active, acString)	
+	if pos.x >= 0 and pos.y >= 0 and pos.x < client.screenwidth() and pos.y < client.screenheight()
 	then
 		if active
 		then
-			gui.text(screenPos.x, screenPos.y, index, null, "green");
+			gui.text(pos.x, pos.y, index, "lightgreen");
 		else
-			gui.text(screenPos.x, screenPos.y, index, null, "red");
+			gui.text(pos.x, pos.y, index, "red");
 		end
 	else
 		if active
 		then
-			acString=acString .. index .. ", ";
+			acString = acString .. index .. ", ";
 		end
 	end
 	return acString;
@@ -198,48 +198,48 @@ end
 
 --borderWidth, camPos, camI and adr are global because they are read frequently!
 --initialize camera / window values (assuming window is not resized)
-local winSize={width=800, height=480}; --only needed to fix drawing past the game window
-borderWidth={left=86, right=74}; --yes, border left > border right
+local winSize = {width = 800, height = 480};
+borderWidth = {left = 86, right = 74};
 
 --initialize camera data
-camPos={x=0, y=0};
-local camPrevious={x=0, y=0};
-camI={x=0, y=0};
+camPos={x = 0, y = 0};
+local camPrevious = {x = 0, y = 0};
+camI = {x = 0, y = 0};
 
-adr=0x80000000;
+adr = 0x80000000;
 
 --PERSISTENT MAP/TILE DATA
-local tSizeCam={width=16, height=16}; --tile size in game coordinates
-local tCount={x=20, y=15}; --20*15 tiles are on camera each time
+local tSizeCam = {width = 16, height =16}; --tile size in game coordinates
+local tCount = {x = 20, y = 15}; --20*15 tiles are on camera each time
 --on screen sizes
-local tSizeScreen={width=32, height=32};
+local tSizeScreen = {width = 32, height = 32};
 
 --initialize verbose state
-local verboseMode=false;
+local verboseMode = false;
 
 --PERSISTENT EVENT DATA
-local evSize=112;
-local sHitboxStart=0x1c1a94; --list of static hitboxes
+local evSize = 112;
+local sHitboxStart = 0x1c1a94; --list of static hitboxes
 
-local form=forms.newform("RaymanMap");
-local mapBox=forms.checkbox(form, "Draw map", 5, 0); --TODO: checked by default?!
-local verboseBox=forms.checkbox(form, "Verbose", 15, 30);
-local rayBox=forms.checkbox(form, "Rayman hitbox", 5, 60);
-local eventBox=forms.checkbox(form, "Draw events", 5, 90);
-local aniBox=forms.checkbox(form, "Animated hitbox", 15, 120);
-local infoBox=forms.checkbox(form, "Show event info", 15, 150);
+local mainForm = forms.newform("RaymanMap");
+local mapBox = forms.checkbox(mainForm, "Draw map", 5, 0);
+local verboseBox = forms.checkbox(mainForm, "Verbose", 15, 30);
+local rayBox = forms.checkbox(mainForm, "Rayman hitbox", 5, 60);
+local eventBox = forms.checkbox(mainForm, "Draw events", 5, 90);
+local aniBox = forms.checkbox(mainForm, "Animated hitbox", 15, 120);
+local infoBox = forms.checkbox(mainForm, "Show event info", 15, 150);
 
 memory.usememorydomain("MainRAM");
 
 while true do
-	if memory.readbyte(0x1cee81)==1 --only draw if in a level
+	if memory.readbyte(0x1cee81) == 1 --only draw if in a level
 	then
-		verboseMode=forms.ischecked(verboseBox);
+		verboseMode = forms.ischecked(verboseBox);
 		
 		--camera data
-		camPos={x=memory.read_u16_le(0x1f84b8), y=memory.read_u16_le(0x1f84c0)};
+		camPos = {x = memory.read_u16_le(0x1f84b8), y = memory.read_u16_le(0x1f84c0)};
 		--interpolate camera (will be added to x, y coordinates)
-		camI={x=(camPos.x - camPrevious.x)*3, y=(camPos.y - camPrevious.y)*3}; --3 is just a magic constant that happened to work for me, but it might not work elsewhere
+		camI = {x = (camPos.x - camPrevious.x) * 3, y = (camPos.y - camPrevious.y) * 3}; --3 is just a magic constant that happened to work for me, but it might not work elsewhere
 		
 		if forms.ischecked(mapBox)
 		then
@@ -249,80 +249,76 @@ while true do
 		--RAYMAN'S HITBOX
 		if forms.ischecked(rayBox)
 		then
-			local off={x=memory.read_s16_le(0x1f9a10), y=memory.read_s16_le(0x1f9a28)};
-			local final=gameToScreen(off.x, off.y);
-			local width=memory.readbyte(0x1f9a08);
-			local height=memory.readbyte(0x1f84c8);
-			gui.drawRectangle(final.x, final.y, width*2, height*2);
+			local off = {x = memory.read_s16_le(0x1f9a10), y = memory.read_s16_le(0x1f9a28)};
+			local final = gameToScreen(off.x, off.y);
+			local width = memory.readbyte(0x1f9a08);
+			local height = memory.readbyte(0x1f84c8);
+			gui.drawRectangle(final.x, final.y, width * 2, height * 2);
 		end
 
 		if forms.ischecked(eventBox)
 		then
 			--TODO: drawEvents function?
-			local startEv=memory.read_u32_le(0x1d7ae0)-adr;
-			local size=memory.readbyte(0x1d7ae0+4); --number of events
+			local startEv = memory.read_u32_le(0x1d7ae0) - adr;
+			local size = memory.readbyte(0x1d7ae4); --number of events
 			
-			local activeIndex=0x1e5428; --current index in the list of active events located here
-			local acString="offscreen (active): ";
+			local activeIndex = 0x1e5428; --current index in the list of active events located here
+			local acString = "offscreen (active): ";
 			
-			for i=0, size-1 --loop through events
+			for i = 0, size - 1 --loop through events
 			do
-				local current=startEv+evSize*i;
-				
-				local pos={x=memory.read_s16_le(current+0x1c), y=memory.read_s16_le(current+0x1c+2)};
+				local current = startEv + evSize * i;
+				local pos = {x = memory.read_s16_le(current + 0x1C), y = memory.read_s16_le(current + 0x1E)};
 				
 				--checks if the event is in the active list
-				local active=false;
-				if i==memory.readbyte(activeIndex)
+				local active = false;
+				if i == memory.readbyte(activeIndex)
 				then
-					active=true;
-					activeIndex=activeIndex+2;
+					active = true;
+					activeIndex = activeIndex + 2;
 				end
 				
-				local gamePos=gameToScreen(pos.x, pos.y);
-				local screenPos={x=client.transformPointX(gamePos.x), y=client.transformPointY(gamePos.y)}; --translate game position to screen position
-				--draws onscreen events as such, returns offscreen events into acString
-				acString=drawIndex(i, screenPos, active, acString);
+				local gamePos = gameToScreen(pos.x, pos.y);
+				local screenPos = {x = client.transformPointX(gamePos.x), y = client.transformPointY(gamePos.y)}; 
 				
-				--draw hitboxes
-				local off4=memory.read_u32_le(current+4)-adr;
-				local aniIndex=memory.readbyte(current+0x54);
-				local aniCounter=memory.readbyte(current+0x55);
-				local ani2base=off4+bit.lshift(bit.lshift(aniIndex, 1)+aniIndex, 2);
+				--get hitbox and animation info
+				local off4 = memory.read_u32_le(current + 4) - adr;
+				local aniIndex = memory.readbyte(current + 0x54);
+				local aniCounter = memory.readbyte(current + 0x55);
+				local ani2base = off4 + bit.lshift(bit.lshift(aniIndex, 1) + aniIndex, 2);
 				
-				local h;
 				--TODO: find proper offset (disabled because of that...)
-				--[[h=getStaticHitbox(current, pos, sHitboxStart, aniCounter, ani2base);
-				if h~=nil
+				local hStatic = getStaticHitbox(current, pos, sHitboxStart, aniCounter, ani2base);
+				local hAnimated = getAnimatedHitbox(current, pos, active, aniCounter, ani2base);
+				
+				acString = drawIndex(i, screenPos, active, acString);
+				
+				if hStatic ~= nil
 				then
-					gui.drawRectangle(h.x, h.y, h.width, h.height);
-				end]]--
-				if forms.ischecked(aniBox)
+					--gui.drawRectangle(h.x, h.y, h.width, h.height);
+				end
+
+				if forms.ischecked(aniBox) and hAnimated ~= nil
 				then
-					h=getAnimatedHitbox(current, pos, active, aniCounter, ani2base);
-					if h~=nil
-					then
-						gui.drawRectangle(h.x, h.y, h.width, h.height, "red");
-					end
+					gui.drawRectangle(hAnimated.x, hAnimated.y, hAnimated.width, hAnimated.height, "red");
 				end
 				
 				if forms.ischecked(infoBox)
 				then
-					eventX = pos.x
-					eventY = pos.y
-					eventXs = memory.read_s16_le(current+0x2c)
-					eventYs = memory.read_s16_le(current+0x2e)
+					eventXs = memory.read_s16_le(current+0x2c);
+					eventYs = memory.read_s16_le(current+0x2e);
 					
-					gui.text(screenPos.x, screenPos.y + 15, "(" .. eventX .. "," .. eventY .. ")")
-					gui.text(screenPos.x, screenPos.y + 30, "(" .. eventXs .. "," .. eventYs .. ")")
+					gui.text(screenPos.x, screenPos.y + 15, "(" .. pos.x .. ", " .. pos.y .. ")");
+					gui.text(screenPos.x, screenPos.y + 30, "(" .. eventXs .. ", " .. eventYs .. ")");
 				end
 			end
-			gui.text(0, 0, acString, null, "green"); --draw acString, since it can't be done during the loop
+			
+			gui.text(0, 0, acString, "lightgreen"); --display remaining elements
 		end
 	end
 	-- previous camera data to determine the camera speed
-	camPrevious.x=camPos.x;
-	camPrevious.y=camPos.y;
+	camPrevious.x = camPos.x;
+	camPrevious.y = camPos.y;
 	
 	-- advance frame
 	emu.frameadvance();

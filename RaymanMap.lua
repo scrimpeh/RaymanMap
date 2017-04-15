@@ -87,8 +87,8 @@ local drawMap = function(winSize, tSizeCam, tCount, tSizeScreen)
 		for x=0, tCount.x
 		do
 			local pos={};
-			pos.x=x*tSizeScreen.width+borderWidth.left-splitTile.x;--+camI.x;
-			pos.y=y*tSizeScreen.height               -splitTile.y;--+camI.y;
+			pos.x=x*tSizeScreen.width+borderWidth.left-splitTile.x;
+			pos.y=y*tSizeScreen.height               -splitTile.y;
 			local blockType=memory.readbyte(row+1+x*2);
 			if not forms.ischecked(verboseBox)
 				then
@@ -213,15 +213,9 @@ local drawEventInfo = function(index, pos, current, active, acString)
 	return acString;
 end
 
---borderWidth, camPos, camI and adr are global because they are read frequently!
 --initialize camera / window values (assuming window is not resized)
 local winSize = {width = 800, height = 480};
 borderWidth = {left = 86, right = 74};
-
---initialize camera data
-camPos={x = 0, y = 0};
-local camPrevious = {x = 0, y = 0};
-camI = {x = 0, y = 0};
 
 adr = 0x80000000;
 
@@ -260,8 +254,6 @@ while true do
 	then
 		--camera data
 		camPos = {x = memory.read_u16_le(0x1f84b8), y = memory.read_u16_le(0x1f84c0)};
-		--interpolate camera (will be added to x, y coordinates)
-		camI = {x = (camPos.x - camPrevious.x) * 3, y = (camPos.y - camPrevious.y) * 3}; --3 is just a magic constant that happened to work for me, but it might not work elsewhere
 		screenPositions[framecounter] = camPos;
 		framecounter = framecounter + 1;
 		if framecounter >= posCount
@@ -340,10 +332,6 @@ while true do
 			gui.text(0, 15, acString, nil, "topright"); --display remaining elements
 		end
 	end
-	-- previous camera data to determine the camera speed
-	camPrevious.x = camPos.x;
-	camPrevious.y = camPos.y;
-	
-	-- advance frame
+
 	emu.frameadvance();
 end

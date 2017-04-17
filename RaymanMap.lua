@@ -5,52 +5,52 @@
 --interpolation not only for camera but for event as well???
 
 local getBlockName = function(hex)
-	if hex==0x04 then
-		return "reactionary"
-	elseif hex>=0x08 and hex<0x0c then
-		return "left";
-	elseif hex>=0x0c and hex<0x10 then
-		return "right";
-	elseif hex>=0x10 and hex<0x14 then
-		return "left small 1";
-	elseif hex>=0x14 and hex<0x18 then
-		return "left small 2";
-	elseif hex>=0x18 and hex<0x1c then
-		return "right small 1";
-	elseif hex>=0x1c and hex<0x20 then
-		return "right small 2";
-	elseif hex>=0x20 and hex<0x24 then
-		return "death";
-	elseif hex>=0x24 and hex<0x28 then
-		return "bounce";
-	elseif hex>=0x28 and hex<0x30 then
-		return "water";
-	elseif hex>=0x30 and hex<0x38 then
-		return "climb";
-	elseif hex>=0x38 and hex<0x3c then
-		return "pass down";
-	elseif hex>=0x3c and hex<0x48 then
-		return "full";
-	elseif hex>=0x48 and hex<0x4c then
-		return "slippery left";
-	elseif hex>=0x4c and hex<0x50 then
-		return "slippery right";
-	elseif hex>=0x50 and hex<0x54 then
-		return "slippery left small 1";
-	elseif hex>=0x54 and hex<0x58 then
-		return "slippery left small 2";
-	elseif hex>=0x58 and hex<0x5c then
-		return "slippery right small 1";
-	elseif hex>=0x5c and hex<0x60 then
-		return "slippery right small 2";
-	elseif hex>=0x60 and hex<0x64 then
-		return "instant mortal";
-	elseif hex>=0x64 and hex<0x78 then
-		return "falling";
-	elseif hex>=0x78 and hex<0x80 then
-		return "slippery";
+	if hex == 0x04 then
+		return "reactionary.png"
+	elseif hex >= 0x08 and hex < 0x0c then
+		return "left.png";
+	elseif hex >= 0x0c and hex < 0x10 then
+		return "right.png";
+	elseif hex >= 0x10 and hex < 0x14 then
+		return "left small 1.png";
+	elseif hex >= 0x14 and hex < 0x18 then
+		return "left small 2.png";
+	elseif hex >= 0x18 and hex < 0x1c then
+		return "right small 1.png";
+	elseif hex >= 0x1c and hex < 0x20 then
+		return "right small 2.png";
+	elseif hex >= 0x20 and hex < 0x24 then
+		return "death.png";
+	elseif hex >= 0x24 and hex < 0x28 then
+		return "bounce.png";
+	elseif hex >= 0x28 and hex < 0x30 then
+		return "water.png";
+	elseif hex >= 0x30 and hex < 0x38 then
+		return "climb.png";
+	elseif hex >= 0x38 and hex < 0x3c then
+		return "pass down.png";
+	elseif hex >= 0x3c and hex < 0x48 then
+		return "full.png";
+	elseif hex >= 0x48 and hex < 0x4c then
+		return "slippery left.png";
+	elseif hex >= 0x4c and hex < 0x50 then
+		return "slippery right.png";
+	elseif hex >= 0x50 and hex < 0x54 then
+		return "slippery left small 1.png";
+	elseif hex >= 0x54 and hex < 0x58 then
+		return "slippery left small 2.png";
+	elseif hex >= 0x58 and hex < 0x5c then
+		return "slippery right small 1.png";
+	elseif hex >= 0x5c and hex < 0x60 then
+		return "slippery right small 2.png";
+	elseif hex >= 0x60 and hex < 0x64 then
+		return "instant mortal.png";
+	elseif hex >= 0x64 and hex < 0x78 then
+		return "falling.png";
+	elseif hex >= 0x78 and hex < 0x80 then
+		return "slippery.png";
 	else 
-		return "";
+		return nil;
 	end
 end
 
@@ -72,28 +72,28 @@ local drawMap = function(winSize, tSizeCam, tCount, tSizeScreen)
 		cpos = camPos;
 	end
 
-	local width=memory.read_u16_le(0x1f4430); --in tiles
-	local start=memory.read_u32_le(0x1f4438) - adr;
+	local width = memory.read_u16_le(0x1f4430); --in tiles
+	local start = memory.read_u32_le(0x1f4438) - adr;
 	
-	local row=start+width*2*(math.floor(cpos.y/tSizeCam.height))+2*(math.floor(cpos.x/tSizeCam.width)); --16 camera indices per tile
+	local row = start + width * 2 * (math.floor(cpos.y / tSizeCam.h)) + 2 * (math.floor(cpos.x / tSizeCam.w)); --16 camera indices per tile
 
-	local splitTile={};
-	splitTile.x=((cpos.x%tSizeCam.width) /tSizeCam.width) *tSizeScreen.width;
-	splitTile.y=((cpos.y%tSizeCam.height)/tSizeCam.height)*tSizeScreen.height;
+	local splitTile = {};
+	splitTile.x = ((cpos.x % tSizeCam.w)  / tSizeCam.w)  * tSizeScreen.w;
+	splitTile.y = ((cpos.y % tSizeCam.h) / tSizeCam.h) * tSizeScreen.h;
 			
-	--tile positions
-	for y=0, tCount.y
+	for y = 0, tCount.y
 	do
-		for x=0, tCount.x
+		for x = 0, tCount.x
 		do
-			local pos={};
-			pos.x=x*tSizeScreen.width+borderWidth.left-splitTile.x;
-			pos.y=y*tSizeScreen.height               -splitTile.y;
-			local blockType=memory.readbyte(row+1+x*2);
+			local pos = {};
+			pos.x = x * tSizeScreen.w + borderWidth.left - splitTile.x;
+			pos.y = y * tSizeScreen.h - splitTile.y;
+			local blockType = memory.readbyte(row + 1 + x * 2);
 			if not forms.ischecked(verboseBox)
 				then
-				if getBlockName(blockType) ~= "" then
-					gui.drawImage(getBlockName(blockType) .. ".png", pos.x, pos.y, tSizeScreen.width, tSizeScreen.height);
+				local blockFilename = getBlockName(blockType);
+				if blockFilename ~= nil then
+					gui.drawImage(blockFilename, pos.x, pos.y, tSizeScreen.w, tSizeScreen.h);
 				end
 			else
 				if blockType ~= 0x00 then
@@ -101,12 +101,12 @@ local drawMap = function(winSize, tSizeCam, tCount, tSizeScreen)
 				end 
 			end
 		end
-		row=row+width*2;
+		row = row + width * 2;
 	end
 		
 	--shitty fix for drawing over the screen border
-	gui.drawRectangle(0, 0, borderWidth.left, winSize.height, 0x00000000, 0xFF000000);
-	gui.drawRectangle(winSize.width - borderWidth.right, 0, borderWidth.right, winSize.height, 0x00000000, 0xFF000000);
+	gui.drawRectangle(0, 0, borderWidth.left, winSize.h, 0x00000000, 0xFF000000);
+	gui.drawRectangle(winSize.w - borderWidth.right, 0, borderWidth.right, winSize.h, 0x00000000, 0xFF000000);
 end
 
 --gets the hitbox located in the sHitboxStart list 
@@ -147,7 +147,7 @@ local getStaticHitbox=function(current, pos, sHitboxStart, aniCounter, ani2base)
 			console.writeline(bizstring.hex(ani1) .. " " .. bizstring.hex(ani2) .. " " .. bizstring.hex(ani2base));
 		end
 		local newPos=gameToScreen(pos.x, pos.y);
-		gui.drawRectangle(newPos.x, newPos.y, size.width*2, size.height*2);]]--
+		gui.drawRectangle(newPos.x, newPos.y, size.w*2, size.h*2);]]--
 		--OFF0 test end
 		
 		local final={};
@@ -155,75 +155,62 @@ local getStaticHitbox=function(current, pos, sHitboxStart, aniCounter, ani2base)
 		final.y=memory.readbyte(ani2+2)+bit.rshift(memory.readbyte(ani1+9), 0x4)+pos.y+off.x;
 		final=gameToScreen(final.x, final.y);
 
-		return {x=final.x, y=final.y, width=width*2, height=height*2};
+		return {x=final.x, y=final.y, w=width*2, h=height*2};
 	else
 		return nil;
 	end
 end
 
 --gets the hitbox from off4
-local getAnimatedHitbox=function(current, pos, active, aniCounter, ani2base)
-	if active --why is this necessary? seems to be due to an inactive event near the spawn (76 in al1)
+local getAnimatedHitbox = function(current, pos, aniCounter, ani2base)
+	--source: 140804
+	local hitboxAdr = memory.read_u32_le(ani2base + 4) - adr + bit.lshift(aniCounter, 2);
+	local off = {x = memory.readbyte(hitboxAdr), y = memory.readbyte(hitboxAdr + 1)};
+	local width = memory.readbyte(hitboxAdr + 2);
+	local height = memory.readbyte(hitboxAdr + 3);
+	--source: 6d loaded and processed at 147374
+	local flipped = bit.band(memory.readbyte(current + 0x6d), 0x40);
+	local x = pos.x + off.x;
+	if flipped == 0x40
 	then
-		--source: 140804
-		local hitboxAdr = memory.read_u32_le(ani2base + 4) - adr + bit.lshift(aniCounter, 2);
-		local off = {x = memory.readbyte(hitboxAdr), y = memory.readbyte(hitboxAdr + 1)};
-		local width = memory.readbyte(hitboxAdr + 2);
-		local height = memory.readbyte(hitboxAdr + 3);
-		--source: 6d loaded and processed at 147374
-		local flipped = bit.band(memory.readbyte(current + 0x6d), 0x40);
-		local x = pos.x + off.x;
-		if flipped == 0x40
-		then
-			x = pos.x + bit.lshift(memory.readbyte(current + 0x52), 1) - off.x - width;
-		end
-		local y = pos.y + off.y;
-		local final = gameToScreen(x, y);
-		
-		return {x = final.x, y = final.y, width = width * 2, height = height * 2};
-	else
-		return nil;
+		x = pos.x + bit.lshift(memory.readbyte(current + 0x52), 1) - off.x - width;
 	end
+	local y = pos.y + off.y;
+	
+	local final = gameToScreen(x, y);
+	return {x = final.x, y = final.y, w = width * 2, h = height * 2};
 end
 
---draws the index of the current event. green if it's active, red otherwise
-local drawEventInfo = function(index, pos, current, active, acString)	
-	if pos.x >= 0 and pos.y >= 0 and pos.x < client.screenwidth() and pos.y < client.screenheight()
+--draws the index of the current even
+local drawEventInfo = function(index, pos, screenPos, current, acString)	
+	if screenPos.x >= 0 and screenPos.y >= 0 and screenPos.x < client.screenwidth() and screenPos.y < client.screenheight()
 	then
-		if active
+		gui.text(screenPos.x, screenPos.y, index, "lightgreen");
+		if forms.ischecked(infoBox)
 		then
-			gui.text(pos.x, pos.y, index, "lightgreen");
-			if forms.ischecked(infoBox)
-			then
-				local eventXs = memory.read_s16_le(current + 0x2c);
-				local eventYs = memory.read_s16_le(current + 0x2e);
-				
-				gui.text(pos.x, pos.y + 15, "(" .. pos.x .. ", " .. pos.y .. ")");
-				gui.text(pos.x, pos.y + 30, "(" .. eventXs .. ", " .. eventYs .. ")");
-			end
-		else
-			gui.text(pos.x, pos.y, index, "red");
+			local eventXs = memory.read_s16_le(current + 0x2c);
+			local eventYs = memory.read_s16_le(current + 0x2e);
+			
+			gui.text(screenPos.x, screenPos.y + 15, "(" .. pos.x .. ", " .. pos.y .. ")");
+			gui.text(screenPos.x, screenPos.y + 30, "(" .. eventXs .. ", " .. eventYs .. ")");
 		end
 	else
-		if active
-		then
-			acString = acString .. index .. ", ";
-		end
+		acString = acString .. index .. ", ";
 	end
 	return acString;
 end
 
 --initialize camera / window values (assuming window is not resized)
-local winSize = {width = 800, height = 480};
+local winSize = {w = 800, h = 480};
 borderWidth = {left = 86, right = 74};
 
 adr = 0x80000000;
 
 --PERSISTENT MAP/TILE DATA
-local tSizeCam = {width = 16, height =16}; --tile size in game coordinates
+local tSizeCam = {w = 16, h = 16}; --tile size in game coordinates
 local tCount = {x = 20, y = 15}; --20*15 tiles are on camera each time
 --on screen sizes
-local tSizeScreen = {width = 32, height = 32};
+local tSizeScreen = {w = 32, h = 32};
 
 --PERSISTENT EVENT DATA
 local evSize = 112;
@@ -281,38 +268,22 @@ while true do
 			--TODO: drawEvents function?
 			local startEv = memory.read_u32_le(0x1d7ae0) - adr;
 			local size = memory.readbyte(0x1d7ae4); --number of events
+			local active = 0;
 			
 			local activeIndex = 0x1e5428; --current index in the list of active events located here
 			local acString = "offscreen (active): ";
 			
-			for i = 0, size - 1 --loop through events
+			local index = memory.read_s8(activeIndex);
+			while index ~= -1
 			do
-				local current = startEv + evSize * i;
+				local current = startEv + evSize * index;
 				local pos = {x = memory.read_s16_le(current + 0x1C), y = memory.read_s16_le(current + 0x1E)};
-				
-				--checks if the event is in the active list
-				local active = false;
-				if i == memory.readbyte(activeIndex)
-				then
-					active = true;
-					activeIndex = activeIndex + 2;
-				end
 				
 				local gamePos = gameToScreen(pos.x, pos.y);
 				local screenPos = {x = client.transformPointX(gamePos.x), y = client.transformPointY(gamePos.y)}; 
 				
-				acString = drawEventInfo(i, screenPos, current, active, acString);
+				acString = drawEventInfo(index, pos, screenPos, current, acString);
 				
-				--TODO: find proper offset (disabled because of that...)
-				--[[if hStatic ~= nil
-				then
-					local hStatic = getStaticHitbox(current, pos, sHitboxStart, aniCounter, ani2base);
-					if hStatic ~= nil
-					then
-						gui.drawRectangle(h.x, h.y, h.width, h.height);
-					end
-				end]]--
-
 				if forms.ischecked(aniBox)
 				then
 					local off4 = memory.read_u32_le(current + 4) - adr;
@@ -320,15 +291,19 @@ while true do
 					local aniCounter = memory.readbyte(current + 0x55);
 					local ani2base = off4 + bit.lshift(bit.lshift(aniIndex, 1) + aniIndex, 2);
 					
-					local hAnim = getAnimatedHitbox(current, pos, active, aniCounter, ani2base);
+					local hAnim = getAnimatedHitbox(current, pos, aniCounter, ani2base);
 					if hAnim ~= nil
 					then
-						gui.drawRectangle(hAnim.x, hAnim.y, hAnim.width, hAnim.height, "red");
+						gui.drawRectangle(hAnim.x, hAnim.y, hAnim.w, hAnim.h, "red");
 					end
 				end
+				
+				active = active + 1
+				activeIndex = activeIndex + 2;
+				index = memory.read_s8(activeIndex);
 			end
-			
-			gui.text(0, 0, string.format("event address: 0x%X, event count: %d", startEv, size), nil, "topright");
+
+			gui.text(0, 0, string.format("event address: 0x%X, total events: %d, active events: %d", startEv, size, active), nil, "topright");
 			gui.text(0, 15, acString, nil, "topright"); --display remaining elements
 		end
 	end

@@ -191,8 +191,11 @@ local drawEventInfo = function(index, pos, screenPos, current, acString)
 			local eventXs = memory.read_s16_le(current + 0x2c);
 			local eventYs = memory.read_s16_le(current + 0x2e);
 			
+			local eventType = memory.read_u8(current + 0x63);
+			
 			gui.text(screenPos.x, screenPos.y + 15, "(" .. pos.x .. ", " .. pos.y .. ")");
 			gui.text(screenPos.x, screenPos.y + 30, "(" .. eventXs .. ", " .. eventYs .. ")");
+			gui.text(screenPos.x + 45, screenPos.y, bizstring.hex(eventType));
 		end
 	else
 		acString = acString .. index .. ", ";
@@ -303,7 +306,7 @@ while true do
 				index = memory.read_s8(activeIndex);
 			end
 
-			gui.text(0, 0, string.format("event address: 0x%X, total events: %d, active events: %d", startEv, size, active), nil, "topright");
+			gui.text(0, 0, string.format("event address: 0x%X, events: %d/%d", startEv, active, size), nil, "topright");
 			gui.text(0, 15, acString, nil, "topright"); --display remaining elements
 		end
 	end
